@@ -36,25 +36,24 @@
   button.ghost{background:#fff; color:var(--ink); border:1px solid var(--line);}
   button.mini{padding:6px 10px; font-size:12px;}
   button:hover{opacity:.88;}
-  main{
-    display:grid; grid-template-columns:310px 1fr 330px; gap:14px;
-    padding:14px 20px; max-width:1500px; margin:0 auto;
-  }
+  button:disabled{opacity:.4; cursor:not-allowed;}
+  main{ max-width:1500px; margin:0 auto; padding:14px 20px; }
   .panel{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px;}
   .panel h2{font-size:13px; font-weight:800; margin-bottom:10px;}
   .hint{font-size:12px; color:var(--sub); line-height:1.6; margin-bottom:10px;}
-  textarea, input[type=text], select{
+  textarea, input[type=text], input[type=password], input[type=color], select{
     width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 10px;
     font-family:inherit; font-size:13px; color:var(--ink); background:#fff;
   }
+  input[type=color]{padding:3px 6px; height:38px;}
   textarea{resize:vertical; line-height:1.6;}
-  #script{height:260px;}
   label.f{display:block; font-size:11.5px; font-weight:700; color:var(--sub); margin:12px 0 5px;}
   .row{display:flex; gap:8px;}
   .row > *{flex:1;}
   #bigwrap{display:flex; justify-content:center; margin-bottom:12px;}
   #bigview{width:100%; max-width:460px; border-radius:14px; overflow:hidden;
-    box-shadow:0 6px 24px rgba(0,0,0,.10); border:1px solid var(--line); background:#fff;}
+    box-shadow:0 6px 24px rgba(0,0,0,.10); border:1px solid var(--line); background:#fff;
+    touch-action:none; user-select:none;}
   #bigview svg{display:block; width:100%; height:auto;}
   #thumbs{display:grid; grid-template-columns:repeat(5,1fr); gap:8px;}
   .thumb{border:2px solid transparent; border-radius:10px; overflow:hidden; cursor:pointer;
@@ -63,9 +62,11 @@
   .thumb svg{display:block; width:100%; height:auto;}
   .thumb .tag{position:absolute; left:5px; top:5px; background:rgba(35,38,43,.78); color:#fff;
     font-size:10px; font-weight:700; padding:2px 6px; border-radius:6px;}
-  .btnrow{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
-  #caption{height:150px; font-size:12.5px;}
+  .btnrow{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center;}
   .ok{color:var(--nemo); font-size:12px; font-weight:700; margin-left:6px;}
+  .msg{font-size:12px; color:var(--sub); margin-top:8px; line-height:1.6;}
+  .msg .err, .err{color:var(--semo); font-weight:700;}
+  code{background:#F3F4F7; padding:1px 5px; border-radius:5px; font-size:11.5px;}
   /* 캐릭터팩 */
   details.pack{margin-top:16px; border-top:1px dashed var(--line); padding-top:12px;}
   details.pack summary{font-size:13px; font-weight:800; cursor:pointer; list-style:none;}
@@ -82,8 +83,48 @@
   td.on{background:#E7F5EE; color:var(--nemo); font-weight:800;}
   td.off{color:#C9CDD4;}
   #packmsg{font-size:12px; margin-top:8px; color:var(--sub);}
-  @media (max-width:1080px){ main{grid-template-columns:1fr;} }
-  @media (max-width:640px){ #thumbs{grid-template-columns:repeat(3,1fr);} }
+  /* 스테퍼 */
+  .stepper{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;}
+  .step-pill{flex:1; min-width:96px; text-align:center; padding:8px 6px; border-radius:9px;
+    background:#fff; border:1px solid var(--line); font-size:10.5px; font-weight:700; color:var(--sub);
+    cursor:not-allowed; font-family:inherit;}
+  .step-pill .num{display:inline-block; width:17px; height:17px; line-height:17px; border-radius:50%;
+    background:var(--line); color:#fff; font-size:10px; margin-right:4px;}
+  .step-pill.enabled{cursor:pointer;}
+  .step-pill.enabled:hover{border-color:var(--sub);}
+  .step-pill.current{border-color:var(--ink); color:var(--ink);}
+  .step-pill.current .num{background:var(--ink);}
+  .step-pill.done{color:var(--nemo);}
+  .step-pill.done .num{background:var(--nemo);}
+  .wizard-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .wizard-grid.single{grid-template-columns:1fr;}
+  .step-footer{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:16px;}
+  .step-footer .msg{flex:1; text-align:center; margin:0;}
+  /* 설정 모달 */
+  .modal-overlay{position:fixed; inset:0; background:rgba(35,38,43,.5); display:flex;
+    align-items:center; justify-content:center; z-index:50; padding:20px;}
+  .modal-overlay[hidden]{display:none;}
+  .modal{max-width:520px; width:100%; max-height:86vh; overflow:auto;}
+  .close-row{display:flex; justify-content:flex-end; margin-bottom:6px;}
+  /* 카테고리/이슈 선택 */
+  .cat-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;}
+  .cat-btn{padding:16px; border-radius:12px; border:2px solid var(--line); background:#fff;
+    font-weight:800; font-size:14px; cursor:pointer; color:var(--ink);}
+  .cat-btn.sel{border-color:var(--semo); background:#FFF3EF;}
+  .issue-list{display:flex; flex-direction:column; gap:6px; margin-top:8px; max-height:340px; overflow:auto;}
+  .issue-item{text-align:left; border:1px solid var(--line); border-radius:9px; padding:10px 12px;
+    background:#fff; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--ink); font-family:inherit;}
+  .issue-item:hover{border-color:var(--sub);}
+  .issue-item.sel{border-color:var(--semo); background:#FFF3EF;}
+  /* 업로드 진행 */
+  .upload-row{display:flex; align-items:center; gap:8px; padding:6px 0; font-size:12.5px; border-bottom:1px solid var(--line);}
+  .upload-row .st{margin-left:auto; font-weight:700;}
+  .st.ok{color:var(--nemo);} .st.err{color:var(--semo);} .st.pending{color:var(--sub);}
+  /* 캐릭터 배치 리스트 */
+  .char-card{border:1px solid var(--line); border-radius:12px; padding:10px; margin-bottom:8px;}
+  .char-card label.chk{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600;}
+  @media (max-width:1080px){ .wizard-grid{grid-template-columns:1fr;} }
+  @media (max-width:640px){ #thumbs{grid-template-columns:repeat(3,1fr);} .step-pill{min-width:70px;} }
 </style>
 </head>
 <body>
@@ -94,23 +135,42 @@
   </div>
   <input class="ep" id="episode" value="EP.01" title="에피소드 표기">
   <div class="spacer"></div>
-  <button class="ghost" id="btnPngOne">선택 슬라이드 PNG</button>
-  <button id="btnZip">10장 전체 내보내기 (ZIP)</button>
+  <button class="ghost" id="btnSettings">⚙ 설정</button>
 </header>
 
 <main>
-  <!-- LEFT -->
-  <section class="panel">
-    <h2>1. 원고 입력</h2>
+  <nav class="stepper" id="stepper"></nav>
+  <div class="wizard-grid">
+    <section class="panel" id="stepPanel"></section>
+    <section class="panel" id="previewPanel">
+      <h2>미리보기 <span class="hint" style="display:inline">(썸네일 클릭 시 해당 컷 선택)</span>
+        <button class="mini ghost" id="btnPngOne" style="float:right">선택 슬라이드 PNG</button></h2>
+      <div id="bigwrap"><div id="bigview"></div></div>
+      <div id="thumbs"></div>
+    </section>
+  </div>
+  <div class="step-footer">
+    <button class="ghost" id="btnPrevStep">← 이전</button>
+    <div class="msg" id="stepMsg"></div>
+    <button id="btnNextStep">다음 →</button>
+  </div>
+</main>
+
+<div class="modal-overlay" id="settingsOverlay" hidden>
+  <div class="panel modal">
+    <div class="close-row"><button class="ghost mini" id="btnCloseSettings">닫기 ✕</button></div>
+    <h2 style="font-size:15px;">⚙ 설정</h2>
+
+    <h2 style="margin-top:14px;">GitHub 연동</h2>
     <div class="hint">
-      빈 줄로 장면 구분. <b>첫 블록=표지</b>, <b>마지막=요약</b>, 사이 8블록=내용.<br>
-      대사 <b>세모(당황): 내용</b> · 소제목 <b># 제목</b> · 메모 <b>&gt; 출처</b> · 요약 <b>- 항목</b><br>
-      표정: 기본·기쁨·당황·화남·설명·슬픔
+      moseori-content-pipeline 저장소의 이슈 목록 조회 · 업로드 · 닫기에 사용돼요.<br>
+      Classic PAT(<code>repo</code> scope 권장)를 넣어주세요. 브라우저 localStorage에만 저장되고 어디로도 전송되지 않습니다.
     </div>
-    <textarea id="script"></textarea>
+    <label class="f">Personal Access Token</label>
+    <input type="password" id="ghTokenInput" placeholder="ghp_...">
     <div class="btnrow">
-      <button id="btnGen">슬라이드 생성</button>
-      <button class="ghost" id="btnSample">예시 원고</button>
+      <button class="mini" id="btnSaveToken">저장</button>
+      <span id="tokenStatus" class="hint" style="margin:0;"></span>
     </div>
 
     <details class="pack" open>
@@ -131,27 +191,8 @@
         <input type="file" id="packInput" accept=".json" style="display:none">
       </div>
     </details>
-  </section>
-
-  <!-- CENTER -->
-  <section class="panel">
-    <h2>2. 미리보기 &amp; 선택 <span class="hint" style="display:inline">(썸네일을 눌러 편집)</span></h2>
-    <div id="bigwrap"><div id="bigview"></div></div>
-    <div id="thumbs"></div>
-  </section>
-
-  <!-- RIGHT -->
-  <section class="panel">
-    <h2>3. 슬라이드 편집</h2>
-    <div id="editor"></div>
-    <h2 style="margin-top:20px;">4. 인스타 캡션</h2>
-    <textarea id="caption"></textarea>
-    <div class="btnrow">
-      <button class="ghost" id="btnCapGen">캡션 다시 생성</button>
-      <button id="btnCapCopy">복사</button><span id="copied" class="ok" style="display:none">복사됨!</span>
-    </div>
-  </section>
-</main>
+  </div>
+</div>
 
 <script>
 /* ============ 데이터 ============ */
@@ -168,14 +209,41 @@ const EXPR2KEY = {'기본':'basic','기쁨':'joy','당황':'panic','화남':'ang
                   'basic':'basic','joy':'joy','panic':'panic','angry':'angry','explain':'explain','sad':'sad'};
 const INKC = '#3A3F45';
 
-let state = { episode:'EP.01', slides: defaultSlides() };
-let selected = 0;
-let pack = {}; // {semo:{basic:{x,y,w,h,inner}, ...}, ...}
+/* ============ 파이프라인/GitHub 연동 상수 ============ */
+const GH_OWNER = 'Yuns-u', GH_REPO = 'moseori-content-pipeline', GH_API = 'https://api.github.com';
+const CATEGORIES = ['이론','절약','투자전략','뉴스'];
+const PAT_LS_KEY = 'moseoriGhPat';
+const TEMPLATE_LS_KEY = 'moseoriTemplateV1';
+const STEP_LABELS = ['카테고리 선택','원고 초안 입력','슬라이드 템플릿','컷별 캐릭터 배치','말풍선·내용 수정','메모·출처','인스타 캡션','저장(업로드)','최종 확인'];
+
+/* ============ 캐릭터/말풍선 헬퍼 ============ */
+let charIdCounter = 0;
+function mkChar(kind, expr, x, y, scale, showName){
+  charIdCounter++;
+  return { id:'c'+charIdCounter, kind, expr, x, y, scale, showName: showName!==false, bubble:null };
+}
+function mkBubble(on, text, x, y, w, h){
+  return { on, text, x, y, w, h };
+}
 
 function defaultSlides(){
-  const s = [{type:'cover', title:'모서리 경제', subtitle:'ㅁ(전략) + ㅅ(동기) + ㅇ(이론)\n자산 형성의 코너를 잘 도는 법'}];
-  for(let i=0;i<8;i++) s.push({type:'content', heading:'', text:'왼쪽에 원고를 넣고\n[슬라이드 생성]을 눌러주세요', speaker:['semo','dongle','nemo','rocket'][i%4], expr:'basic', note:''});
-  s.push({type:'summary', title:'오늘의 코너 정리', bullets:['핵심 포인트 1','핵심 포인트 2','핵심 포인트 3'], speaker:'nemo'});
+  const cover = {
+    type:'cover', title:'모서리 경제', subtitle:'ㅁ(전략) + ㅅ(동기) + ㅇ(이론)\n자산 형성의 코너를 잘 도는 법',
+    characters:[
+      mkChar('nemo','basic',210,830,0.72,false),
+      mkChar('semo','joy',430,830,0.72,false),
+      mkChar('dongle','basic',650,830,0.72,false),
+      mkChar('rocket','basic',870,830,0.72,false),
+    ]
+  };
+  const s=[cover];
+  for(let i=0;i<8;i++){
+    const c = mkChar(['semo','dongle','nemo','rocket'][i%4], 'basic', 540, 800, 0.9);
+    c.bubble = mkBubble(true, '왼쪽에 원고를 넣고\n[슬라이드 생성]을 눌러주세요', 90, 290, 900, 350);
+    s.push({type:'content', heading:'', note:'', characters:[c]});
+  }
+  s.push({type:'summary', title:'오늘의 코너 정리', bullets:['핵심 포인트 1','핵심 포인트 2','핵심 포인트 3'],
+    characters:[mkChar('nemo','joy',860,880,0.85,false)]});
   return s;
 }
 
@@ -185,12 +253,19 @@ function parseScript(raw){
   if(blocks.length < 2){ alert('빈 줄로 구분된 블록이 2개 이상 필요해요 (표지 + 요약 최소).'); return null; }
   const slides = [];
   const covLines = blocks[0].split('\n');
-  slides.push({type:'cover', title:covLines[0]||'모서리 경제', subtitle:covLines.slice(1).join('\n')});
+  slides.push({
+    type:'cover', title:covLines[0]||'모서리 경제', subtitle:covLines.slice(1).join('\n'),
+    characters:[
+      mkChar('nemo','basic',210,830,0.72,false),
+      mkChar('semo','joy',430,830,0.72,false),
+      mkChar('dongle','basic',650,830,0.72,false),
+      mkChar('rocket','basic',870,830,0.72,false),
+    ]
+  });
   let mid = blocks.slice(1, blocks.length-1);
   if(mid.length > 8){ const extra = mid.slice(7).join('\n'); mid = mid.slice(0,7).concat([extra]); }
   for(let i=0;i<8;i++){
-    slides.push(i < mid.length ? parseContentBlock(mid[i])
-      : {type:'content', heading:'', text:'', speaker:'none', expr:'basic', note:''});
+    slides.push(i < mid.length ? parseContentBlock(mid[i]) : {type:'content', heading:'', note:'', characters:[]});
   }
   const sumLines = blocks[blocks.length-1].split('\n');
   let title='오늘의 코너 정리'; const bullets=[];
@@ -199,27 +274,54 @@ function parseScript(raw){
     if(/^[-•]/.test(l)) bullets.push(l.replace(/^[-•]\s*/,''));
     else if(l) title = l.replace(/^#\s*/,'');
   });
-  slides.push({type:'summary', title, bullets: bullets.length?bullets.slice(0,4):['핵심 포인트를 - 로 적어주세요'], speaker:'nemo'});
+  slides.push({
+    type:'summary', title, bullets: bullets.length?bullets.slice(0,4):['핵심 포인트를 - 로 적어주세요'],
+    characters:[mkChar('nemo','joy',860,880,0.85,false)]
+  });
   return slides;
 }
 function parseContentBlock(block){
-  const s = {type:'content', heading:'', text:'', speaker:'none', expr:'basic', note:''};
-  const body=[];
+  const s = {type:'content', heading:'', note:'', characters:[]};
+  const body=[]; let spk='none', expr='basic';
   block.split('\n').forEach(line=>{
     const t=line.trim(); if(!t) return;
     if(t.startsWith('#')){ s.heading=t.replace(/^#+\s*/,''); return; }
     if(t.startsWith('>')){ s.note=t.replace(/^>\s*/,''); return; }
     const m = t.match(/^(세모|동글이|동그라미|네모|마름모|로켓)\s*(?:\(([^)]+)\))?\s*[:：]\s*(.*)$/);
     if(m){
-      if(s.speaker==='none'){ s.speaker=NAME2KEY[m[1]]; s.expr=EXPR2KEY[m[2]]||'basic'; }
+      if(spk==='none'){ spk=NAME2KEY[m[1]]; expr=EXPR2KEY[m[2]]||'basic'; }
       body.push(m[3]);
     } else body.push(t);
   });
-  s.text = body.join('\n');
+  const text = body.join('\n');
+  if(text){
+    const c = mkChar(spk, expr, 540, 800, 0.9);
+    c.bubble = mkBubble(true, text, 90, 290, 900, 350);
+    s.characters = [c];
+  }
   return s;
 }
 
-/* ============ 텍스트 유틸 ============ */
+/* ============ 상태 ============ */
+let state = {
+  episode:'EP.01', slides: defaultSlides(),
+  category:null, issue:null,
+  source:'', script:'', caption:'',
+  uploaded:false, uploadManifest:null,
+};
+let selected = 0;
+let pack = {}; // {semo:{basic:{x,y,w,h,inner}, ...}, ...}
+let template = {
+  bgColor:'#FDF9F3', bgImage:null, cornerStyle:'multi', cornerColor:'#FF7A5C',
+  brandName:'모서리 경제',
+  tagline:'@corner.economy · 저장하고 코너 돌 때 꺼내보기',
+};
+let currentStep = 1, maxStepReached = 1;
+let githubToken = '';
+let issuesCache = {};
+let dragInfo = null;
+
+/* ============ 텍스트 유틸 (변경 없음) ============ */
 function chWd(ch){ return ch.charCodeAt(0) > 0x2000 ? 1 : 0.55; }
 function strW(s){ let w=0; for(const c of s) w+=chWd(c); return w; }
 function wrap(text, maxW){
@@ -244,7 +346,7 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 function tspans(lines,x,y0,lh){ return lines.map((l,i)=>`<tspan x="${x}" y="${y0+i*lh}">${esc(l)}</tspan>`).join(''); }
 const FONT = `"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif`;
 
-/* ============ 내장 캐릭터 (v2 디자인) ============ */
+/* ============ 내장 캐릭터 (변경 없음) ============ */
 function builtinChar(kind, expr){
   const c = CHAR[kind]; const g=[];
   let faceY, sideX, armY, bottom, legX;
@@ -308,12 +410,12 @@ function builtinChar(kind, expr){
   return g.join('');
 }
 
-/* 커스텀 팩 우선, 없으면 내장 */
+/* 커스텀 팩 우선, 없으면 내장 (변경 없음) */
 function charSVG(kind, expr, cx, cy, s){
   if(!kind || kind==='none') return '';
   const rec = pack[kind] && (pack[kind][expr] || pack[kind]['basic']);
   if(rec){
-    const H = 260; // 목표 높이 (scale=1 기준)
+    const H = 260;
     const k = (H / rec.h) * s;
     const tx = cx - (rec.x + rec.w/2)*k;
     const ty = cy + 20*s - (rec.y + rec.h/2)*k;
@@ -322,27 +424,63 @@ function charSVG(kind, expr, cx, cy, s){
   return `<g transform="translate(${cx},${cy}) scale(${s})">${builtinChar(kind, expr)}</g>`;
 }
 
-/* ============ 슬라이드 SVG ============ */
+/* ============ 배경/가장자리 (템플릿 반영) ============ */
+function bg(){
+  const back = template.bgImage
+    ? `<image href="${template.bgImage}" x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice"/>`
+    : `<rect width="1080" height="1080" fill="${template.bgColor}"/>`;
+  return back + corners();
+}
 function corners(){
+  if(template.cornerStyle==='none') return '';
   const L=64,o=36,w=9;
-  const cs=[[o,o,CHAR.nemo.color,1,1],[1080-o,o,CHAR.semo.color,-1,1],[o,1080-o,CHAR.dongle.color,1,-1],[1080-o,1080-o,CHAR.rocket.color,-1,-1]];
+  const col = (def)=> template.cornerStyle==='single' ? template.cornerColor : def;
+  const cs=[[o,o,col(CHAR.nemo.color),1,1],[1080-o,o,col(CHAR.semo.color),-1,1],[o,1080-o,col(CHAR.dongle.color),1,-1],[1080-o,1080-o,col(CHAR.rocket.color),-1,-1]];
   return cs.map(([x,y,c,dx,dy])=>`<path d="M${x+dx*L},${y} L${x},${y} L${x},${y+dy*L}" stroke="${c}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`).join('');
 }
-function bg(){ return `<rect width="1080" height="1080" fill="#FDF9F3"/>`+corners(); }
 function brandLabel(pageTxt){
-  return `<text x="90" y="112" font-family=${JSON.stringify(FONT)} font-size="30" font-weight="800" fill="#23262B" letter-spacing="2">모서리 경제 <tspan fill="#9AA0A8" font-weight="600">· ${esc(state.episode)}</tspan></text>
+  return `<text x="90" y="112" font-family=${JSON.stringify(FONT)} font-size="30" font-weight="800" fill="#23262B" letter-spacing="2">${esc(template.brandName||'')} <tspan fill="#9AA0A8" font-weight="600">· ${esc(state.episode)}</tspan></text>
   <text x="990" y="112" text-anchor="end" font-family=${JSON.stringify(FONT)} font-size="28" font-weight="700" fill="#B9BEC6">${esc(pageTxt)}</text>`;
 }
-function slideSVG(sl, idx){
+
+/* ============ 캐릭터+말풍선 렌더 (모든 슬라이드 공통) ============ */
+function renderCharactersAndBubbles(chars, interactive){
+  let out = '', handles = '';
+  (chars||[]).forEach(c=>{
+    if(c.bubble && c.bubble.on){
+      const {x:bx,y:by,w:bw,h:bh} = c.bubble;
+      const maxW = Math.max(4, Math.round((bw-100)/47));
+      const lines = wrap(c.bubble.text, maxW);
+      const bs = (c.kind && c.kind!=='none') ? CHAR[c.kind].color : '#D8DCE2';
+      out += `<g data-bubble-id="${c.id}" style="cursor:${interactive?'move':'default'}">
+        <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="34" fill="#FFFFFF" stroke="${bs}" stroke-width="6"/>`;
+      if(c.y > by+bh){
+        const tailX = Math.min(Math.max(c.x, bx+40), bx+bw-40);
+        out += `<path d="M${tailX-26},${by+bh-3} L${tailX},${by+bh+42} L${tailX+26},${by+bh-3} Z" fill="#FFFFFF" stroke="${bs}" stroke-width="6" stroke-linejoin="round"/>
+          <rect x="${tailX-26}" y="${by+bh-9}" width="52" height="10" fill="#FFFFFF"/>`;
+      }
+      out += `<text font-family=${JSON.stringify(FONT)} font-size="40" font-weight="600" fill="#2C3037" text-anchor="middle">${tspans(lines,bx+bw/2,by+64,56)}</text></g>`;
+      if(interactive){
+        handles += `<rect data-bubble-id="${c.id}" data-role="resize" x="${bx+bw-32}" y="${by+bh-32}" width="30" height="30" rx="8" fill="#23262B" opacity="0.85" style="cursor:nwse-resize"/>`;
+      }
+    }
+    out += `<g data-char-id="${c.id}" style="cursor:${interactive?'grab':'default'}">${charSVG(c.kind, c.expr, c.x, c.y, c.scale)}</g>`;
+    if(c.showName && c.kind && c.kind!=='none'){
+      out += `<text x="${c.x}" y="${c.y+140*c.scale}" text-anchor="middle" font-family=${JSON.stringify(FONT)} font-size="26" font-weight="800" fill="${CHAR[c.kind].dark}">${CHAR[c.kind].name}</text>`;
+    }
+  });
+  return out + handles;
+}
+
+/* ============ 슬라이드 SVG ============ */
+function slideSVG(sl, idx, interactive){
   let body='';
   if(sl.type==='cover'){
     const tl=wrap(sl.title,11), st=wrap(sl.subtitle,22);
     const t0=380-(tl.length-1)*50;
     body = brandLabel('COVER')
       + `<text font-family=${JSON.stringify(FONT)} font-size="96" font-weight="800" fill="#23262B" text-anchor="middle">${tspans(tl,540,t0,112)}</text>`
-      + `<text font-family=${JSON.stringify(FONT)} font-size="38" font-weight="600" fill="#6B7280" text-anchor="middle">${tspans(st,540,t0+(tl.length-1)*112+96,54)}</text>`
-      + charSVG('nemo','basic',210,830,0.72)+charSVG('semo','joy',430,830,0.72)
-      + charSVG('dongle','basic',650,830,0.72)+charSVG('rocket','basic',870,830,0.72);
+      + `<text font-family=${JSON.stringify(FONT)} font-size="38" font-weight="600" fill="#6B7280" text-anchor="middle">${tspans(st,540,t0+(tl.length-1)*112+96,54)}</text>`;
   }
   else if(sl.type==='summary'){
     const tl=wrap(sl.title,14);
@@ -357,49 +495,28 @@ function slideSVG(sl, idx){
         <text font-family=${JSON.stringify(FONT)} font-size="42" font-weight="600" fill="#3A3F46">${tspans(ls,150,y,56)}</text>`;
       y += ls.length*56+44;
     });
-    body += charSVG(sl.speaker||'nemo','joy',860,880,0.85)
-      + `<text x="90" y="1000" font-family=${JSON.stringify(FONT)} font-size="30" font-weight="700" fill="#9AA0A8">@corner.economy · 저장하고 코너 돌 때 꺼내보기</text>`;
+    if(state.source){
+      body += `<text x="90" y="965" font-family=${JSON.stringify(FONT)} font-size="24" font-weight="600" fill="#B9BEC6">출처: ${esc(state.source)}</text>`;
+    }
+    body += `<text x="90" y="1000" font-family=${JSON.stringify(FONT)} font-size="30" font-weight="700" fill="#9AA0A8">${esc(template.tagline||'')}</text>`;
   }
   else {
     body = brandLabel(idx+' / 8');
-    let y=230;
     if(sl.heading){
       const hl=wrap(sl.heading,15);
-      const hColor = sl.speaker && sl.speaker!=='none' ? CHAR[sl.speaker].color : '#23262B';
-      body += `<text font-family=${JSON.stringify(FONT)} font-size="52" font-weight="800" fill="#23262B">${tspans(hl,90,y,66)}</text>
-        <line x1="90" y1="${y+(hl.length-1)*66+26}" x2="${90+Math.min(strW(hl[0])*52,520)}" y2="${y+(hl.length-1)*66+26}" stroke="${hColor}" stroke-width="9" stroke-linecap="round"/>`;
-      y += hl.length*66+60;
-    }
-    const lines=wrap(sl.text,17), lh=62, pad=52;
-    const bh=Math.max(lines.length*lh+pad*2-18,140);
-    const bx=90,bw=900,by=y,tailX=540;
-    const bs = sl.speaker && sl.speaker!=='none' ? CHAR[sl.speaker].color : '#D8DCE2';
-    body += `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="34" fill="#FFFFFF" stroke="${bs}" stroke-width="6"/>
-      <path d="M${tailX-26},${by+bh-3} L${tailX},${by+bh+42} L${tailX+26},${by+bh-3} Z" fill="#FFFFFF" stroke="${bs}" stroke-width="6" stroke-linejoin="round"/>
-      <rect x="${tailX-26}" y="${by+bh-9}" width="52" height="10" fill="#FFFFFF"/>
-      <text font-family=${JSON.stringify(FONT)} font-size="44" font-weight="600" fill="#2C3037" text-anchor="middle">${tspans(lines,540,by+pad+18,lh)}</text>`;
-    const chY=Math.min(Math.max(by+bh+180,800),850);
-    body += charSVG(sl.speaker, sl.expr, 540, chY, 0.9);
-    if(sl.speaker && sl.speaker!=='none'){
-      body += `<text x="540" y="1008" text-anchor="middle" font-family=${JSON.stringify(FONT)} font-size="30" font-weight="800" fill="${CHAR[sl.speaker].dark}">${CHAR[sl.speaker].name}</text>`;
+      body += `<text font-family=${JSON.stringify(FONT)} font-size="52" font-weight="800" fill="#23262B">${tspans(hl,90,230,66)}</text>
+        <line x1="90" y1="${230+(hl.length-1)*66+26}" x2="${90+Math.min(strW(hl[0])*52,520)}" y2="${230+(hl.length-1)*66+26}" stroke="#23262B" stroke-width="9" stroke-linecap="round"/>`;
     }
     if(sl.note){
       body += `<text x="990" y="1008" text-anchor="end" font-family=${JSON.stringify(FONT)} font-size="26" font-weight="600" fill="#9AA0A8">${esc(sl.note)}</text>`;
     }
   }
+  body += renderCharactersAndBubbles(sl.characters, !!interactive);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">${bg()}${body}</svg>`;
 }
 
-/* ============ 렌더링 ============ */
-function renderAll(){
-  const th=document.getElementById('thumbs');
-  th.innerHTML = state.slides.map((sl,i)=>{
-    const tag = sl.type==='cover'?'표지': sl.type==='summary'?'요약':'내용 '+i;
-    return `<div class="thumb ${i===selected?'sel':''}" data-i="${i}"><span class="tag">${tag}</span>${slideSVG(sl,i)}</div>`;
-  }).join('');
-  th.querySelectorAll('.thumb').forEach(el=>el.onclick=()=>{ selected=+el.dataset.i; renderAll(); renderEditor(); });
-  document.getElementById('bigview').innerHTML = slideSVG(state.slides[selected], selected);
-}
+/* ============ 공통 렌더 유틸 ============ */
+function markDirty(){ state.uploaded = false; }
 function field(l,inner){ return `<label class="f">${l}</label>${inner}`; }
 function charSelect(id,val){
   const o=Object.entries(CHAR).map(([k,c])=>`<option value="${k}" ${k===val?'selected':''}>${c.name}</option>`).join('');
@@ -408,38 +525,85 @@ function charSelect(id,val){
 function exprSelect(id,val){
   return `<select id="${id}">${Object.entries(EXPRS).map(([k,n])=>`<option value="${k}" ${k===val?'selected':''}>${n}</option>`).join('')}</select>`;
 }
-function renderEditor(){
-  const sl=state.slides[selected], ed=document.getElementById('editor');
-  if(sl.type==='cover'){
-    ed.innerHTML = field('표지 제목', `<input type="text" id="e_title" value="${esc(sl.title)}">`)
-      + field('부제 (줄바꿈 가능)', `<textarea id="e_sub" style="height:70px">${esc(sl.subtitle)}</textarea>`);
-    bind('e_title','input',v=>sl.title=v); bind('e_sub','input',v=>sl.subtitle=v);
-  } else if(sl.type==='summary'){
-    ed.innerHTML = field('요약 제목', `<input type="text" id="e_title" value="${esc(sl.title)}">`)
-      + field('요약 항목 (한 줄에 하나, 최대 4개)', `<textarea id="e_bul" style="height:100px">${esc(sl.bullets.join('\n'))}</textarea>`)
-      + field('캐릭터', charSelect('e_spk', sl.speaker));
-    bind('e_title','input',v=>sl.title=v);
-    bind('e_bul','input',v=>sl.bullets=v.split('\n').filter(Boolean).slice(0,4));
-    bind('e_spk','change',v=>sl.speaker=v);
-  } else {
-    ed.innerHTML = field('소제목 (선택)', `<input type="text" id="e_head" value="${esc(sl.heading)}">`)
-      + field('말풍선 대사 (줄바꿈 가능)', `<textarea id="e_text" style="height:110px">${esc(sl.text)}</textarea>`)
-      + `<div class="row"><div>${field('말하는 캐릭터', charSelect('e_spk', sl.speaker))}</div>
-         <div>${field('표정', exprSelect('e_expr', sl.expr))}</div></div>`
-      + field('하단 메모 (선택)', `<input type="text" id="e_note" value="${esc(sl.note)}">`);
-    bind('e_head','input',v=>sl.heading=v);
-    bind('e_text','input',v=>sl.text=v);
-    bind('e_spk','change',v=>sl.speaker=v);
-    bind('e_expr','change',v=>sl.expr=v);
-    bind('e_note','input',v=>sl.note=v);
-  }
-}
 function bind(id,ev,setter){
   const el=document.getElementById(id);
-  el.addEventListener(ev,()=>{ setter(el.value); renderAll(); });
+  if(!el) return;
+  el.addEventListener(ev,()=>{ setter(el.value); markDirty(); renderAll(); });
+}
+function renderBigOnly(){
+  const bv=document.getElementById('bigview');
+  if(bv) bv.innerHTML = slideSVG(state.slides[selected], selected, currentStep===4);
+}
+function renderAll(){
+  const th=document.getElementById('thumbs');
+  if(!th) return; // 1단계는 미리보기 패널이 숨겨져 있음
+  th.innerHTML = state.slides.map((sl,i)=>{
+    const tag = sl.type==='cover'?'표지': sl.type==='summary'?'요약':'내용 '+i;
+    return `<div class="thumb ${i===selected?'sel':''}" data-i="${i}"><span class="tag">${tag}</span>${slideSVG(sl,i)}</div>`;
+  }).join('');
+  th.querySelectorAll('.thumb').forEach(el=>el.onclick=()=>{ selected=+el.dataset.i; renderAll(); renderCutEditor(); });
+  renderBigOnly();
+}
+function renderCutEditor(){
+  if(currentStep===4) renderCharList();
+  else if(currentStep===5) renderEditorStep5();
+  else if(currentStep===6) renderEditorStep6();
+}
+function clampSelectedToContent(){ if(selected<1 || selected>8) selected=1; }
+
+/* ============ 드래그 배치 (4단계에서만 동작) ============ */
+function svgPoint(svg, clientX, clientY){
+  const rect = svg.getBoundingClientRect();
+  return { x:(clientX-rect.left)*1080/rect.width, y:(clientY-rect.top)*1080/rect.height };
+}
+function initDrag(){
+  const bv = document.getElementById('bigview');
+  bv.addEventListener('pointerdown', e=>{
+    if(currentStep!==4) return;
+    const svg = bv.querySelector('svg'); if(!svg) return;
+    const sl = state.slides[selected];
+    const resizeEl = e.target.closest('[data-role="resize"]');
+    const bubbleEl = !resizeEl && e.target.closest('[data-bubble-id]');
+    const charEl = !resizeEl && !bubbleEl && e.target.closest('[data-char-id]');
+    let mode=null, id=null;
+    if(resizeEl){ mode='resize'; id=resizeEl.getAttribute('data-bubble-id'); }
+    else if(bubbleEl){ mode='bubble'; id=bubbleEl.getAttribute('data-bubble-id'); }
+    else if(charEl){ mode='char'; id=charEl.getAttribute('data-char-id'); }
+    if(!mode) return;
+    const c = (sl.characters||[]).find(ch=>ch.id===id);
+    if(!c) return;
+    const p = svgPoint(svg, e.clientX, e.clientY);
+    dragInfo = {
+      mode, c, startX:p.x, startY:p.y,
+      origCx:c.x, origCy:c.y,
+      origBx:c.bubble?c.bubble.x:0, origBy:c.bubble?c.bubble.y:0,
+      origBw:c.bubble?c.bubble.w:0, origBh:c.bubble?c.bubble.h:0,
+    };
+    try{ bv.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault();
+  });
+  bv.addEventListener('pointermove', e=>{
+    if(!dragInfo) return;
+    const svg = bv.querySelector('svg'); if(!svg) return;
+    const p = svgPoint(svg, e.clientX, e.clientY);
+    const dx = p.x-dragInfo.startX, dy = p.y-dragInfo.startY;
+    const c = dragInfo.c;
+    if(dragInfo.mode==='char'){
+      c.x = Math.round(dragInfo.origCx+dx); c.y = Math.round(dragInfo.origCy+dy);
+    } else if(dragInfo.mode==='bubble'){
+      c.bubble.x = Math.round(dragInfo.origBx+dx); c.bubble.y = Math.round(dragInfo.origBy+dy);
+    } else if(dragInfo.mode==='resize'){
+      c.bubble.w = Math.max(200, Math.round(dragInfo.origBw+dx));
+      c.bubble.h = Math.max(100, Math.round(dragInfo.origBh+dy));
+    }
+    renderBigOnly();
+  });
+  const endDrag=()=>{ if(!dragInfo) return; dragInfo=null; markDirty(); renderAll(); };
+  bv.addEventListener('pointerup', endDrag);
+  bv.addEventListener('pointercancel', endDrag);
 }
 
-/* ============ 캐릭터팩: 가져오기/저장 ============ */
+/* ============ 캐릭터팩: 가져오기/저장 (변경 없음) ============ */
 function parseSvgText(text){
   const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
   const svg = doc.querySelector('svg');
@@ -473,7 +637,7 @@ async function importFiles(files){
     (pack[slot.kind] = pack[slot.kind]||{})[slot.expr] = rec;
     ok++;
   }
-  saveLocal(); renderSlots(); renderAll();
+  saveLocal(); renderSlots(); markDirty(); renderAll();
   document.getElementById('packmsg').textContent =
     `${ok}개 적용됨` + (fail.length? ` · 실패/경고: ${fail.join(', ')}` : '');
 }
@@ -490,6 +654,8 @@ function renderSlots(){
 }
 function saveLocal(){ try{ localStorage.setItem('cornerPackV2', JSON.stringify(pack)); }catch(e){} }
 function loadLocal(){ try{ const s=localStorage.getItem('cornerPackV2'); if(s) pack=JSON.parse(s)||{}; }catch(e){} }
+function saveTemplateLocal(){ try{ localStorage.setItem(TEMPLATE_LS_KEY, JSON.stringify(template)); }catch(e){} }
+function loadTemplateLocal(){ try{ const s=localStorage.getItem(TEMPLATE_LS_KEY); if(s) template=Object.assign(template, JSON.parse(s)); }catch(e){} }
 
 const dz=document.getElementById('dropzone'), fi=document.getElementById('fileInput');
 dz.onclick=()=>fi.click();
@@ -506,13 +672,13 @@ document.getElementById('btnPackLoad').onclick=()=>document.getElementById('pack
 document.getElementById('packInput').onchange=async e=>{
   try{
     const data=JSON.parse(await e.target.files[0].text());
-    pack = data.chars||{}; saveLocal(); renderSlots(); renderAll();
+    pack = data.chars||{}; saveLocal(); renderSlots(); markDirty(); renderAll();
     document.getElementById('packmsg').textContent='캐릭터팩을 불러왔어요.';
   }catch(err){ document.getElementById('packmsg').textContent='팩 파일을 읽지 못했어요.'; }
   e.target.value='';
 };
 document.getElementById('btnPackClear').onclick=()=>{
-  pack={}; saveLocal(); renderSlots(); renderAll();
+  pack={}; saveLocal(); renderSlots(); markDirty(); renderAll();
   document.getElementById('packmsg').textContent='내장 기본 디자인으로 되돌렸어요.';
 };
 
@@ -526,11 +692,14 @@ function genCaption(){
   if(heads.length) cap += '오늘 다룬 코너 👉 '+heads.join(' · ')+'\n\n';
   (sum.bullets||[]).forEach(b=>cap+=`✅ ${b}\n`);
   cap+='\n성급한 세모, 이론파 동글이, 꾸준한 네모의 경제 이야기.\n저장해두고 코너 돌 때 꺼내보세요 🔖\n\n';
+  if(state.source) cap += `출처: ${state.source}\n\n`;
   cap+='#모서리경제 #경제툰 #인스타툰 #경제공부 #재테크 #금융공부 #경제상식 #직장인재테크';
-  document.getElementById('caption').value=cap;
+  state.caption = cap;
+  const el=document.getElementById('caption');
+  if(el) el.value=cap;
 }
 
-/* ============ 내보내기 ============ */
+/* ============ 내보내기 (변경 없음) ============ */
 function svgToPngBlob(svgStr){
   return new Promise((resolve,reject)=>{
     const blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
@@ -560,32 +729,566 @@ function slideName(i){
 document.getElementById('btnPngOne').onclick=async()=>{
   download(await svgToPngBlob(slideSVG(state.slides[selected],selected)), slideName(selected));
 };
-document.getElementById('btnZip').onclick=async()=>{
-  const btn=document.getElementById('btnZip'); btn.textContent='만드는 중…'; btn.disabled=true;
+
+/* ============ GitHub API 연동 (변경 없음) ============ */
+function catLabel(cat){ return `category:${cat}`; }
+async function ghFetch(path, opts={}){
+  if(!githubToken) return {error:{kind:'no-token'}};
   try{
-    if(window.JSZip){
-      const zip=new JSZip();
-      for(let i=0;i<10;i++) zip.file(slideName(i), await svgToPngBlob(slideSVG(state.slides[i],i)));
-      download(await zip.generateAsync({type:'blob'}), `모서리경제_${state.episode.replace(/[^\w가-힣.]/g,'')}_10장.zip`);
-    } else {
-      for(let i=0;i<10;i++) download(await svgToPngBlob(slideSVG(state.slides[i],i)), slideName(i));
+    const res = await fetch(`${GH_API}${path}`, {
+      ...opts,
+      headers:{
+        'Authorization': `Bearer ${githubToken}`,
+        'Accept':'application/vnd.github+json',
+        ...(opts.headers||{}),
+      },
+    });
+    if(res.status===401) return {error:{kind:'auth'}};
+    if(res.status===403){
+      const remain = res.headers.get('x-ratelimit-remaining');
+      return {error:{kind: remain==='0' ? 'ratelimit' : 'forbidden'}};
     }
-  } finally { btn.textContent='10장 전체 내보내기 (ZIP)'; btn.disabled=false; }
+    if(res.status===404) return {error:{kind:'notfound'}};
+    if(res.status===422){ const body=await res.json().catch(()=>({})); return {error:{kind:'validation', body}}; }
+    if(!res.ok) return {error:{kind:'unknown', status:res.status}};
+    if(res.status===204) return {data:null};
+    return {data: await res.json()};
+  } catch(e){
+    return {error:{kind:'network', message:e.message}};
+  }
+}
+function ghErrorMessage(err){
+  switch(err && err.kind){
+    case 'no-token': return 'GitHub 토큰이 없어요. ⚙ 설정에서 PAT를 먼저 등록해주세요.';
+    case 'auth': return 'GitHub 토큰이 유효하지 않아요. ⚙ 설정에서 토큰을 다시 확인해주세요.';
+    case 'forbidden': return '권한이 부족해요. 토큰에 repo 권한이 있는지 확인해주세요.';
+    case 'ratelimit': return 'GitHub API 요청 한도를 초과했어요. 잠시 후 다시 시도해주세요.';
+    case 'notfound': return '저장소나 리소스를 찾을 수 없어요 (비공개 저장소 접근 권한 부족일 수도 있어요).';
+    case 'validation': return '요청이 거부됐어요 (최신 파일 정보 없이 덮어쓰려 했을 수 있어요. 다시 시도해주세요).';
+    case 'network': return '네트워크 오류로 GitHub에 연결하지 못했어요.';
+    default: return 'GitHub 요청 중 알 수 없는 오류가 발생했어요.';
+  }
+}
+async function fetchIssuesByLabel(cat, {force=false}={}){
+  if(!force && issuesCache[cat] && Date.now()-issuesCache[cat].fetchedAt < 60000) return {data:issuesCache[cat].items};
+  const label = encodeURIComponent(catLabel(cat));
+  const {data, error} = await ghFetch(`/repos/${GH_OWNER}/${GH_REPO}/issues?labels=${label}&state=open&per_page=100`);
+  if(error) return {error};
+  const items = (data||[]).filter(i=>!i.pull_request);
+  issuesCache[cat] = {items, fetchedAt:Date.now()};
+  return {data:items};
+}
+async function fetchIssue(number){ return ghFetch(`/repos/${GH_OWNER}/${GH_REPO}/issues/${number}`); }
+async function closeIssueApi(number){
+  return ghFetch(`/repos/${GH_OWNER}/${GH_REPO}/issues/${number}`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({state:'closed'}),
+  });
+}
+async function getFileSha(path){
+  const encPath = path.split('/').map(encodeURIComponent).join('/');
+  const {data, error} = await ghFetch(`/repos/${GH_OWNER}/${GH_REPO}/contents/${encPath}`);
+  if(error) return null;
+  return data && data.sha ? data.sha : null;
+}
+async function putFile(path, base64Content, message){
+  const encPath = path.split('/').map(encodeURIComponent).join('/');
+  const sha = await getFileSha(path);
+  const body = {message, content: base64Content};
+  if(sha) body.sha = sha;
+  return ghFetch(`/repos/${GH_OWNER}/${GH_REPO}/contents/${encPath}`, {
+    method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body),
+  });
+}
+async function blobToBase64(blob){
+  const buf = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let binary = '';
+  const chunk = 0x8000;
+  for(let i=0;i<bytes.length;i+=chunk){
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+  }
+  return btoa(binary);
+}
+function buildMetaText(){
+  return [
+    `에피소드: ${state.episode}`,
+    `카테고리: ${state.category||''}`,
+    `이슈: #${state.issue?state.issue.number:''} ${state.issue?state.issue.title:''}`,
+    `출처: ${state.source||''}`,
+    `저장 시각: ${new Date().toISOString()}`,
+    '', '---- 원본 원고 ----', '',
+    state.script||'',
+  ].join('\n');
+}
+async function uploadToGithub(onProgress){
+  if(!state.issue) return {ok:false, message:'먼저 1단계에서 이슈를 선택해주세요.'};
+  const number = state.issue.number;
+  const {data:issueNow, error:issueErr} = await fetchIssue(number);
+  if(issueErr) return {ok:false, message: ghErrorMessage(issueErr)};
+  if(issueNow.state==='closed') return {ok:false, message:'선택한 이슈가 이미 닫혀 있어요. 1단계에서 다시 골라주세요.'};
+
+  const files = [];
+  for(let i=0;i<10;i++) files.push({name: slideName(i), idx:i});
+  files.push({name:'script.txt', text: buildMetaText()});
+
+  const results = [];
+  for(const f of files){
+    onProgress && onProgress(f.name, 'pending');
+    try{
+      let base64, message;
+      if(f.text!==undefined){
+        base64 = btoa(unescape(encodeURIComponent(f.text)));
+        message = `docs: ${state.episode} 원본 원고 업로드`;
+      } else {
+        const blob = await svgToPngBlob(slideSVG(state.slides[f.idx], f.idx));
+        base64 = await blobToBase64(blob);
+        message = `content: ${state.episode} ${f.name} 업로드`;
+      }
+      const {error} = await putFile(`inbox/${number}/${f.name}`, base64, message);
+      if(error){ results.push({name:f.name, ok:false, message:ghErrorMessage(error)}); onProgress && onProgress(f.name,'err', ghErrorMessage(error)); }
+      else { results.push({name:f.name, ok:true}); onProgress && onProgress(f.name,'ok'); }
+    } catch(e){
+      results.push({name:f.name, ok:false, message:e.message});
+      onProgress && onProgress(f.name,'err', e.message);
+    }
+  }
+  const allOk = results.every(r=>r.ok);
+  if(allOk){ state.uploaded = true; state.uploadManifest = {files:results, uploadedAt:Date.now()}; }
+  return {ok:allOk, results};
+}
+
+/* ============ 설정 모달 ============ */
+function openSettings(){ document.getElementById('settingsOverlay').hidden=false; }
+function closeSettings(){ document.getElementById('settingsOverlay').hidden=true; }
+document.getElementById('btnSettings').onclick=openSettings;
+document.getElementById('btnCloseSettings').onclick=closeSettings;
+document.getElementById('settingsOverlay').addEventListener('click', e=>{ if(e.target.id==='settingsOverlay') closeSettings(); });
+document.getElementById('btnSaveToken').onclick=()=>{
+  const v=document.getElementById('ghTokenInput').value.trim();
+  githubToken=v;
+  try{ localStorage.setItem(PAT_LS_KEY, v); }catch(e){}
+  document.getElementById('tokenStatus').textContent = v?'저장됨':'토큰이 비어있어요';
+  issuesCache = {};
 };
 
-/* ============ 버튼 & 초기화 ============ */
-document.getElementById('btnGen').onclick=()=>{
-  const slides=parseScript(document.getElementById('script').value);
-  if(slides){ state.slides=slides; selected=0; renderAll(); renderEditor(); genCaption(); }
-};
-document.getElementById('btnCapGen').onclick=genCaption;
-document.getElementById('btnCapCopy').onclick=async()=>{
-  await navigator.clipboard.writeText(document.getElementById('caption').value);
-  const ok=document.getElementById('copied'); ok.style.display='inline';
-  setTimeout(()=>ok.style.display='none',1500);
-};
-document.getElementById('episode').addEventListener('input',e=>{ state.episode=e.target.value; renderAll(); });
+/* ============ 1단계: 카테고리 선택 ============ */
+function renderStep1(){
+  document.getElementById('stepPanel').innerHTML = `
+    <h2>1. 카테고리 선택</h2>
+    <div class="hint">카테고리를 고르면 moseori-content-pipeline의 열린 이슈 목록을 불러와요.</div>
+    <div class="cat-grid" id="catGrid">
+      ${CATEGORIES.map(c=>`<button class="cat-btn ${state.category===c?'sel':''}" data-cat="${c}">${c}</button>`).join('')}
+    </div>
+    <div id="issueArea"></div>`;
+  document.getElementById('catGrid').querySelectorAll('.cat-btn').forEach(b=>{
+    b.onclick=()=>selectCategory(b.dataset.cat);
+  });
+  if(state.category) loadIssuesFor(state.category);
+}
+function selectCategory(cat){
+  if(state.category!==cat){ state.category=cat; state.issue=null; markDirty(); }
+  renderStep1();
+}
+async function loadIssuesFor(cat, force){
+  const area=document.getElementById('issueArea');
+  if(!area) return;
+  area.innerHTML = `<div class="hint">불러오는 중…</div>`;
+  if(!githubToken){
+    area.innerHTML = `<div class="msg"><span class="err">${ghErrorMessage({kind:'no-token'})}</span> <button class="mini ghost" id="btnOpenSettingsInline1">설정 열기</button></div>`;
+    document.getElementById('btnOpenSettingsInline1').onclick=openSettings;
+    return;
+  }
+  const {data, error} = await fetchIssuesByLabel(cat, {force});
+  if(error){ area.innerHTML = `<div class="msg err">${ghErrorMessage(error)}</div>`; return; }
+  if(!data.length){
+    area.innerHTML = `<div class="hint">이 카테고리엔 열린 이슈가 없어요. <a href="https://github.com/${GH_OWNER}/${GH_REPO}/issues" target="_blank" rel="noopener">저장소에서 확인</a></div>
+      <button class="mini ghost" id="btnRefreshIssues">새로고침</button>`;
+    document.getElementById('btnRefreshIssues').onclick=()=>loadIssuesFor(cat, true);
+    return;
+  }
+  area.innerHTML = `<label class="f">열린 이슈 (${data.length})</label>
+    <div class="issue-list" id="issueList"></div>
+    <button class="mini ghost" id="btnRefreshIssues" style="margin-top:8px;">새로고침</button>`;
+  const list=document.getElementById('issueList');
+  data.forEach(iss=>{
+    const b=document.createElement('button');
+    b.className='issue-item'+(state.issue&&state.issue.number===iss.number?' sel':'');
+    b.textContent = `#${iss.number} ${iss.title}`;
+    b.onclick=()=>selectIssue(iss);
+    list.appendChild(b);
+  });
+  document.getElementById('btnRefreshIssues').onclick=()=>loadIssuesFor(cat, true);
+}
+function selectIssue(iss){
+  state.issue = {number:iss.number, title:iss.title, html_url:iss.html_url};
+  markDirty();
+  if(maxStepReached<2) maxStepReached=2;
+  renderStep1(); renderStepper();
+}
 
+/* ============ 2단계: 원고 초안 입력 ============ */
+function renderStep2(){
+  if(!state.script) state.script = SAMPLE;
+  document.getElementById('stepPanel').innerHTML = `
+    <h2>2. 원고 초안 입력</h2>
+    <div class="hint">
+      빈 줄로 장면 구분. <b>첫 블록=표지</b>, <b>마지막=요약</b>, 사이 8블록=내용.<br>
+      대사 <b>세모(당황): 내용</b> · 소제목 <b># 제목</b> · 메모 <b>&gt; 출처</b> · 요약 <b>- 항목</b><br>
+      표정: 기본·기쁨·당황·화남·설명·슬픔
+    </div>
+    <textarea id="script" style="height:340px;">${esc(state.script)}</textarea>
+    <div class="btnrow">
+      <button id="btnGen">슬라이드 생성</button>
+      <button class="ghost" id="btnSample">예시 원고</button>
+    </div>`;
+  renderAll();
+  document.getElementById('script').addEventListener('input', e=>{ state.script=e.target.value; });
+  document.getElementById('btnSample').onclick=()=>{ document.getElementById('script').value=SAMPLE; state.script=SAMPLE; };
+  document.getElementById('btnGen').onclick=()=>{
+    const val=document.getElementById('script').value;
+    const slides=parseScript(val);
+    if(slides){
+      state.slides=slides; state.script=val;
+      selected=0; markDirty(); genCaption();
+      if(maxStepReached<3) maxStepReached=3;
+      renderAll(); renderStepper();
+      document.getElementById('stepMsg').textContent='슬라이드가 생성됐어요.';
+    }
+  };
+}
+
+/* ============ 3단계: 슬라이드 템플릿 ============ */
+function renderStep3(){
+  document.getElementById('stepPanel').innerHTML = `
+    <h2>3. 슬라이드 템플릿</h2>
+    <div class="hint">배경·가장자리·요약 태그라인처럼 에피소드 내내 고정되는 디자인을 여기서 한 번에 정합니다. 오른쪽에서 표지·본문·요약 아무 컷이나 골라 미리 볼 수 있어요.</div>
+    ${field('상단 브랜드명 (모든 컷 좌측 상단)', `<input type="text" id="t_brand" value="${esc(template.brandName)}">`)}
+    ${field('배경색', `<input type="color" id="t_bgcolor" value="${template.bgColor}">`)}
+    <div class="btnrow">
+      <button class="mini ghost" id="t_bgUploadBtn">배경 이미지 업로드</button>
+      <input type="file" id="t_bgFile" accept="image/*" style="display:none">
+      ${template.bgImage ? '<button class="mini ghost" id="t_bgClear">이미지 제거</button><span class="hint" style="margin:0;">이미지 사용 중</span>' : '<span class="hint" style="margin:0;">기본 배경색 사용 중</span>'}
+    </div>
+    ${field('가장자리 스타일', `<select id="t_corner">
+      <option value="multi" ${template.cornerStyle==='multi'?'selected':''}>네 가지 색 (기본)</option>
+      <option value="single" ${template.cornerStyle==='single'?'selected':''}>단일 색상</option>
+      <option value="none" ${template.cornerStyle==='none'?'selected':''}>숨김</option>
+    </select>`)}
+    ${template.cornerStyle==='single' ? field('가장자리 색상', `<input type="color" id="t_cornerColor" value="${template.cornerColor}">`) : ''}
+    ${field('요약 슬라이드 하단 태그라인', `<input type="text" id="t_tagline" value="${esc(template.tagline)}">`)}
+  `;
+  renderAll();
+  bind('t_brand','input',v=>{template.brandName=v; saveTemplateLocal();});
+  bind('t_bgcolor','input',v=>{template.bgColor=v; saveTemplateLocal();});
+  bind('t_tagline','input',v=>{template.tagline=v; saveTemplateLocal();});
+  document.getElementById('t_corner').addEventListener('change', e=>{
+    template.cornerStyle=e.target.value; saveTemplateLocal(); markDirty(); renderStep3();
+  });
+  const cornerColorEl = document.getElementById('t_cornerColor');
+  if(cornerColorEl) bind('t_cornerColor','input',v=>{template.cornerColor=v; saveTemplateLocal();});
+  document.getElementById('t_bgUploadBtn').onclick=()=>document.getElementById('t_bgFile').click();
+  document.getElementById('t_bgFile').onchange=e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const reader=new FileReader();
+    reader.onload=()=>{ template.bgImage=reader.result; saveTemplateLocal(); markDirty(); renderStep3(); };
+    reader.readAsDataURL(f);
+  };
+  const clearBtn=document.getElementById('t_bgClear');
+  if(clearBtn) clearBtn.onclick=()=>{ template.bgImage=null; saveTemplateLocal(); markDirty(); renderStep3(); };
+}
+
+/* ============ 4단계: 컷별 캐릭터 배치 ============ */
+function renderStep4(){
+  document.getElementById('stepPanel').innerHTML = `
+    <h2>4. 컷별 캐릭터 배치</h2>
+    <div class="hint">오른쪽 미리보기에서 캐릭터나 말풍선을 <b>직접 드래그</b>해서 위치를 바꾸세요. 말풍선 오른쪽 아래 작은 사각형을 드래그하면 크기가 바뀝니다. 캐릭터 크기는 슬라이더로, 이름표는 체크박스로 켜고 끌 수 있어요. 표지·요약 컷도 똑같이 조정할 수 있어요.</div>
+    <div id="charList"></div>
+    <button class="mini" id="btnAddChar" style="margin-top:10px;">+ 캐릭터 추가</button>`;
+  renderAll();
+  renderCharList();
+  document.getElementById('btnAddChar').onclick=()=>{
+    const sl=state.slides[selected];
+    const n=(sl.characters||[]).length;
+    const c=mkChar('semo','basic', 300+(n%4)*160, 750, 0.8);
+    (sl.characters=sl.characters||[]).push(c);
+    markDirty(); renderAll(); renderCharList();
+  };
+}
+function renderCharList(){
+  const wrapEl=document.getElementById('charList'); if(!wrapEl) return;
+  const sl=state.slides[selected];
+  const chars=sl.characters||[];
+  if(!chars.length){ wrapEl.innerHTML='<div class="hint">아직 캐릭터가 없어요. 아래 "+ 캐릭터 추가"로 만들어보세요.</div>'; return; }
+  wrapEl.innerHTML = chars.map((c,i)=>`
+    <div class="char-card">
+      <div class="row">
+        <div>${field('캐릭터', charSelect('c_kind_'+i, c.kind))}</div>
+        <div>${field('표정', exprSelect('c_expr_'+i, c.expr))}</div>
+      </div>
+      ${field('크기', `<input type="range" id="c_scale_${i}" min="0.35" max="1.4" step="0.05" value="${c.scale}">`)}
+      <div class="row" style="margin-top:10px;align-items:center;">
+        <label class="chk"><input type="checkbox" id="c_bub_${i}" ${c.bubble&&c.bubble.on?'checked':''}> 말풍선 표시</label>
+        <label class="chk"><input type="checkbox" id="c_name_${i}" ${c.showName?'checked':''}> 이름표 표시</label>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <button class="mini ghost" id="c_del_${i}" style="margin-left:auto;">삭제</button>
+      </div>
+    </div>`).join('');
+  chars.forEach((c,i)=>{
+    bind('c_kind_'+i,'change',v=>{ c.kind=v; });
+    bind('c_expr_'+i,'change',v=>{ c.expr=v; });
+    bind('c_scale_'+i,'input',v=>{ c.scale=parseFloat(v); });
+    document.getElementById('c_bub_'+i).addEventListener('change', e=>{
+      if(e.target.checked){
+        c.bubble = c.bubble || mkBubble(true,'',100,150,880,300);
+        c.bubble.on = true;
+      } else if(c.bubble){ c.bubble.on = false; }
+      markDirty(); renderAll();
+    });
+    document.getElementById('c_name_'+i).addEventListener('change', e=>{
+      c.showName = e.target.checked; markDirty(); renderAll();
+    });
+    document.getElementById('c_del_'+i).onclick=()=>{
+      chars.splice(i,1); markDirty(); renderAll(); renderCharList();
+    };
+  });
+}
+
+/* ============ 5단계: 말풍선과 내용 수정 ============ */
+function renderStep5(){
+  document.getElementById('stepPanel').innerHTML = `
+    <h2>5. 말풍선과 내용 수정</h2>
+    <div class="hint">컷을 선택해 실제 텍스트(표지 제목·각 캐릭터의 말풍선·요약)를 다듬습니다.</div>
+    <div id="editor"></div>`;
+  renderAll();
+  renderEditorStep5();
+}
+function renderEditorStep5(){
+  const ed=document.getElementById('editor'); if(!ed) return;
+  const sl=state.slides[selected];
+  if(sl.type==='cover'){
+    ed.innerHTML = field('표지 제목', `<input type="text" id="e_title" value="${esc(sl.title)}">`)
+      + field('부제 (줄바꿈 가능)', `<textarea id="e_sub" style="height:80px">${esc(sl.subtitle)}</textarea>`);
+    bind('e_title','input',v=>sl.title=v); bind('e_sub','input',v=>sl.subtitle=v);
+    return;
+  }
+  if(sl.type==='summary'){
+    ed.innerHTML = field('요약 제목', `<input type="text" id="e_title" value="${esc(sl.title)}">`)
+      + field('요약 항목 (한 줄에 하나, 최대 4개)', `<textarea id="e_bul" style="height:110px">${esc((sl.bullets||[]).join('\n'))}</textarea>`);
+    bind('e_title','input',v=>sl.title=v);
+    bind('e_bul','input',v=>sl.bullets=v.split('\n').filter(Boolean).slice(0,4));
+    return;
+  }
+  let html = field('소제목 (선택)', `<input type="text" id="e_head" value="${esc(sl.heading)}">`);
+  const bubbly = (sl.characters||[]).filter(c=>c.bubble && c.bubble.on);
+  if(!bubbly.length){
+    html += `<div class="hint">말풍선이 켜진 캐릭터가 없어요. 4단계에서 캐릭터의 말풍선을 켜주세요.</div>`;
+  } else {
+    bubbly.forEach((c,i)=>{
+      const label = (c.kind && c.kind!=='none') ? CHAR[c.kind].name+'의 말풍선' : `말풍선 ${i+1}`;
+      html += field(label, `<textarea id="bt_${c.id}" style="height:100px">${esc(c.bubble.text)}</textarea>`);
+    });
+  }
+  ed.innerHTML = html;
+  bind('e_head','input',v=>sl.heading=v);
+  bubbly.forEach(c=>bind('bt_'+c.id,'input',v=>c.bubble.text=v));
+}
+
+/* ============ 6단계: 하단 메모, 출처 ============ */
+function renderStep6(){
+  clampSelectedToContent();
+  document.getElementById('stepPanel').innerHTML = `
+    <h2>6. 하단 메모 &amp; 출처</h2>
+    <div class="hint">본문 컷마다 우측 하단에 작게 들어가는 메모(선택)를 답니다. 출처는 에피소드 전체에 한 번만 입력하면 <b>요약(마지막) 슬라이드 하단</b>과 <b>인스타그램 캡션</b>에 자동으로 표시돼요 — 확인하려면 아래 썸네일에서 맨 오른쪽 "요약" 컷을 클릭해보세요 (지금은 메모 편집 때문에 본문 컷이 기본으로 보여요).</div>
+    <div id="editor"></div>
+    <label class="f" style="margin-top:16px;">전체 출처 (선택) — 요약 슬라이드 하단·캡션에 노출</label>
+    <textarea id="e_source" style="height:70px">${esc(state.source)}</textarea>`;
+  renderAll();
+  renderEditorStep6();
+  bind('e_source','input',v=>state.source=v);
+}
+function renderEditorStep6(){
+  const ed=document.getElementById('editor'); if(!ed) return;
+  const sl=state.slides[selected];
+  if(sl.type!=='content'){
+    ed.innerHTML = `<div class="hint">메모는 본문 컷(1~8)에만 달 수 있어요. 본문 컷을 선택해주세요.</div>`;
+    return;
+  }
+  ed.innerHTML = field('이 컷의 메모 (선택)', `<input type="text" id="e_note" value="${esc(sl.note)}">`);
+  bind('e_note','input',v=>sl.note=v);
+}
+
+/* ============ 7단계: 인스타그램 캡션 ============ */
+function renderStep7(){
+  if(!state.caption) genCaption();
+  document.getElementById('stepPanel').innerHTML = `
+    <h2>7. 인스타그램 캡션</h2>
+    <textarea id="caption" style="height:280px; font-size:12.5px;">${esc(state.caption)}</textarea>
+    <div class="btnrow">
+      <button class="ghost" id="btnCapGen">캡션 다시 생성</button>
+      <button id="btnCapCopy">복사</button><span id="copied" class="ok" style="display:none">복사됨!</span>
+    </div>`;
+  renderAll();
+  document.getElementById('caption').addEventListener('input', e=>{ state.caption=e.target.value; });
+  document.getElementById('btnCapGen').onclick=()=>{ genCaption(); document.getElementById('caption').value=state.caption; };
+  document.getElementById('btnCapCopy').onclick=async()=>{
+    await navigator.clipboard.writeText(document.getElementById('caption').value);
+    const ok=document.getElementById('copied'); ok.style.display='inline';
+    setTimeout(()=>ok.style.display='none',1500);
+  };
+}
+
+/* ============ 8단계: 저장하기 (GitHub 업로드) ============ */
+function renderStep8(){
+  document.getElementById('stepPanel').innerHTML = `
+    <h2>8. 저장하기</h2>
+    <div class="hint">
+      ${state.issue ? `대상 이슈: <b>#${state.issue.number} ${esc(state.issue.title)}</b>` : '이슈가 선택되지 않았어요. 1단계로 가주세요.'}<br>
+      PNG 10장 + 원본 원고(script.txt)가 <code>inbox/${state.issue?state.issue.number:'?'}/</code> 에 올라갑니다.
+    </div>
+    <div class="btnrow">
+      <button id="btnUpload" ${state.issue?'':'disabled'}>GitHub에 업로드</button>
+      <button class="ghost" id="btnZipBackup">ZIP으로 백업 다운로드</button>
+    </div>
+    <div id="uploadProgress"></div>
+    <div id="uploadMsg" class="msg"></div>`;
+  renderAll();
+
+  document.getElementById('btnZipBackup').onclick = async()=>{
+    const btn=document.getElementById('btnZipBackup'); btn.textContent='만드는 중…'; btn.disabled=true;
+    try{
+      if(window.JSZip){
+        const zip=new JSZip();
+        for(let i=0;i<10;i++) zip.file(slideName(i), await svgToPngBlob(slideSVG(state.slides[i],i)));
+        zip.file('script.txt', buildMetaText());
+        download(await zip.generateAsync({type:'blob'}), `모서리경제_${state.episode.replace(/[^\w가-힣.]/g,'')}_10장.zip`);
+      } else {
+        for(let i=0;i<10;i++) download(await svgToPngBlob(slideSVG(state.slides[i],i)), slideName(i));
+      }
+    } finally { btn.textContent='ZIP으로 백업 다운로드'; btn.disabled=false; }
+  };
+
+  const btnUpload = document.getElementById('btnUpload');
+  if(btnUpload) btnUpload.onclick = async()=>{
+    if(!githubToken){
+      document.getElementById('uploadMsg').innerHTML = `<span class="err">${ghErrorMessage({kind:'no-token'})}</span> <button class="mini ghost" id="btnOpenSettingsInline2">설정 열기</button>`;
+      document.getElementById('btnOpenSettingsInline2').onclick=openSettings;
+      return;
+    }
+    btnUpload.disabled=true; btnUpload.textContent='업로드 중…';
+    const prog=document.getElementById('uploadProgress'); prog.innerHTML='';
+    const rows={};
+    const ensureRow=(name)=>{
+      if(!rows[name]){
+        const div=document.createElement('div'); div.className='upload-row';
+        div.innerHTML = `<span>${esc(name)}</span><span class="st pending">대기</span>`;
+        prog.appendChild(div); rows[name]=div.querySelector('.st');
+      }
+      return rows[name];
+    };
+    for(let i=0;i<10;i++) ensureRow(slideName(i));
+    ensureRow('script.txt');
+    const result = await uploadToGithub((name, status, msg)=>{
+      const el = ensureRow(name);
+      el.className = 'st '+status;
+      el.textContent = status==='ok'?'완료':status==='err'?'실패':'진행중';
+      if(msg) el.title = msg;
+    });
+    btnUpload.disabled=false; btnUpload.textContent='GitHub에 업로드';
+    document.getElementById('uploadMsg').innerHTML = result.ok
+      ? `<span style="color:var(--nemo);font-weight:700;">업로드 완료! 9단계에서 최종 확인 후 완료를 눌러주세요.</span>`
+      : `<span class="err">${result.message || '일부 파일 업로드에 실패했어요. 다시 시도해주세요 (성공한 파일은 건너뜁니다).'}</span>`;
+    renderStepper();
+  };
+}
+
+/* ============ 9단계: 최종 확인 ============ */
+function renderStep9(){
+  document.getElementById('stepPanel').innerHTML = `
+    <h2>9. 최종 확인</h2>
+    <div class="hint">
+      ${state.issue ? `이슈: <b>#${state.issue.number} ${esc(state.issue.title)}</b>` : '선택된 이슈가 없어요.'}<br>
+      업로드 상태: ${state.uploaded ? '<span style="color:var(--nemo);font-weight:700;">✓ 업로드 완료</span>' : '<span class="err">업로드 필요 (8단계로)</span>'}
+    </div>
+    <div class="btnrow">
+      <button id="btnFinish" ${state.uploaded && state.issue?'':'disabled'}>완료 (이슈 닫기 → 자동 아카이브)</button>
+    </div>
+    <div id="finishMsg" class="msg"></div>`;
+  renderAll();
+  const btnFinish=document.getElementById('btnFinish');
+  if(btnFinish) btnFinish.onclick = async()=>{
+    btnFinish.disabled=true; btnFinish.textContent='처리 중…';
+    const number = state.issue.number;
+    const {data:issueNow, error:checkErr} = await fetchIssue(number);
+    if(checkErr){
+      document.getElementById('finishMsg').innerHTML = `<span class="err">${ghErrorMessage(checkErr)}</span>`;
+      btnFinish.disabled=false; btnFinish.textContent='완료 (이슈 닫기 → 자동 아카이브)'; return;
+    }
+    if(issueNow.state==='closed'){
+      document.getElementById('finishMsg').textContent = '이미 닫힌 이슈예요. 아카이브 워크플로우가 곧(최대 1시간 내) 처리할 거예요.';
+      btnFinish.textContent='완료됨'; return;
+    }
+    const {error} = await closeIssueApi(number);
+    if(error){
+      document.getElementById('finishMsg').innerHTML = `<span class="err">${ghErrorMessage(error)}</span>`;
+      btnFinish.disabled=false; btnFinish.textContent='완료 (이슈 닫기 → 자동 아카이브)';
+      return;
+    }
+    document.getElementById('finishMsg').innerHTML = `<span style="color:var(--nemo);font-weight:700;">이슈를 닫았어요! inbox 파일과 함께 자동으로 아카이브됩니다 (최대 1시간 내).</span>`;
+    btnFinish.textContent='완료됨';
+  };
+}
+
+/* ============ 마법사 내비게이션 ============ */
+const STEP_RENDERERS = {1:renderStep1,2:renderStep2,3:renderStep3,4:renderStep4,5:renderStep5,6:renderStep6,7:renderStep7,8:renderStep8,9:renderStep9};
+function canProceed(n){
+  if(n===1) return !!state.issue;
+  if(n===2) return !!(state.slides && state.slides.length===10);
+  return true;
+}
+function renderStepper(){
+  const nav=document.getElementById('stepper');
+  nav.innerHTML = STEP_LABELS.map((label,i)=>{
+    const n=i+1;
+    const cls=['step-pill'];
+    if(n===currentStep) cls.push('current');
+    else if(n<=maxStepReached) cls.push('done');
+    if(n<=maxStepReached) cls.push('enabled');
+    return `<button class="${cls.join(' ')}" data-n="${n}" ${n<=maxStepReached?'':'disabled'}><span class="num">${n}</span>${label}</button>`;
+  }).join('');
+  nav.querySelectorAll('.step-pill').forEach(b=>{
+    b.onclick=()=>{ const n=+b.dataset.n; if(n<=maxStepReached) goToStep(n); };
+  });
+}
+function renderStepBody(){
+  document.getElementById('stepMsg').textContent='';
+  const wg=document.querySelector('.wizard-grid');
+  const pv=document.getElementById('previewPanel');
+  if(pv) pv.style.display = currentStep===1 ? 'none' : '';
+  if(wg) wg.classList.toggle('single', currentStep===1);
+  STEP_RENDERERS[currentStep]();
+  document.getElementById('btnPrevStep').disabled = currentStep===1;
+  document.getElementById('btnNextStep').style.display = currentStep===9 ? 'none' : '';
+}
+function goToStep(n){
+  currentStep = Math.max(1, Math.min(9, n));
+  if(currentStep>maxStepReached) maxStepReached=currentStep;
+  renderStepper();
+  renderStepBody();
+}
+document.getElementById('btnPrevStep').onclick=()=>goToStep(currentStep-1);
+document.getElementById('btnNextStep').onclick=()=>{
+  if(!canProceed(currentStep)){
+    document.getElementById('stepMsg').textContent =
+      currentStep===1 ? '이슈를 먼저 선택해주세요.' :
+      currentStep===2 ? '슬라이드를 먼저 생성해주세요.' : '';
+    return;
+  }
+  goToStep(currentStep+1);
+};
+document.getElementById('episode').addEventListener('input',e=>{ state.episode=e.target.value; markDirty(); renderAll(); });
+
+/* ============ 예시 원고 & 초기화 ============ */
 const SAMPLE = `금리가 오르면 왜 내 주식은 떨어질까?
 세모도 이해하는 금리의 코너
 
@@ -615,10 +1318,16 @@ const SAMPLE = `금리가 오르면 왜 내 주식은 떨어질까?
 - 패닉셀 금지, 현금흐름 점검이 먼저
 - 예적금·채권 금리 상승은 기회`;
 
-document.getElementById('btnSample').onclick=()=>{ document.getElementById('script').value=SAMPLE; };
-document.getElementById('script').value=SAMPLE;
+githubToken = (function(){ try{ return localStorage.getItem(PAT_LS_KEY)||''; }catch(e){ return ''; } })();
+document.getElementById('ghTokenInput').value = githubToken;
+document.getElementById('tokenStatus').textContent = githubToken ? '저장됨' : '';
 loadLocal(); renderSlots();
-document.getElementById('btnGen').click();
+loadTemplateLocal();
+state.script = SAMPLE;
+state.slides = parseScript(SAMPLE);
+genCaption();
+initDrag();
+goToStep(1);
 </script>
 </body>
 </html>
