@@ -177,7 +177,7 @@
       <summary>캐릭터팩 · 피그마 연동</summary>
       <div class="hint" style="margin-top:8px;">
         피그마에서 캐릭터를 SVG로 내보낸 뒤 여기에 넣으면 내장 캐릭터를 <b>교체</b>해요.<br>
-        파일명 규칙: <b>세모_기본.svg</b>, <b>동글이_설명.svg</b> …<br>
+        파일명 규칙: <b>세모_기본.svg</b>, <b>동그라미_설명.svg</b> …<br>
         (영문 semo_basic.svg 도 인식)
       </div>
       <div id="dropzone">SVG 파일을 끌어다 놓거나 클릭해서 선택<br>(여러 개 동시 가능)</div>
@@ -198,7 +198,7 @@
 /* ============ 데이터 ============ */
 const CHAR = {
   semo:  {name:'세모',   color:'#FF7A5C', dark:'#E05A3C'},
-  dongle:{name:'동글이', color:'#7FA8F7', dark:'#4E7ED9'},
+  dongle:{name:'동그라미', color:'#7FA8F7', dark:'#4E7ED9'},
   nemo:  {name:'네모',   color:'#5FBF8F', dark:'#3E9A6E'},
   rocket:{name:'속보', color:'#FFC85C', dark:'#DFA22F'},
 };
@@ -691,7 +691,7 @@ function genCaption(){
   cap+='\n';
   if(heads.length) cap += '오늘 다룬 코너 👉 '+heads.join(' · ')+'\n\n';
   (sum.bullets||[]).forEach(b=>cap+=`✅ ${b}\n`);
-  cap+='\n성급한 세모, 이론파 동글이, 꾸준한 네모의 경제 이야기.\n저장해두고 코너 돌 때 꺼내보세요 🔖\n\n';
+  cap+='\n성급한 세모, 이론파 동그라미, 꾸준한 네모의 경제 이야기.\n저장해두고 코너 돌 때 꺼내보세요 🔖\n\n';
   if(state.source) cap += `출처: ${state.source}\n\n`;
   cap+='#모서리경제 #경제툰 #인스타툰 #경제공부 #재테크 #금융공부 #경제상식 #직장인재테크';
   state.caption = cap;
@@ -1298,9 +1298,9 @@ const SAMPLE = `금리가 오르면 왜 내 주식은 떨어질까?
 세모(당황): 뭐?! 내 주식이 파랗게 질렸어! 금리가 뭔데 내 계좌를 건드려?!
 
 # 금리 = 돈의 가격
-동글이(설명): 금리는 돈을 빌리는 값이야. 금리가 오르면 빚내서 투자하기 부담스러워지지.
+동그라미(설명): 금리는 돈을 빌리는 값이야. 금리가 오르면 빚내서 투자하기 부담스러워지지.
 
-동글이(설명): 그래서 시장에 돌던 돈이 줄어들고, 주식 같은 위험자산부터 힘이 빠지는 거야.
+동그라미(설명): 그래서 시장에 돌던 돈이 줄어들고, 주식 같은 위험자산부터 힘이 빠지는 거야.
 
 세모(화남): 그럼 다 팔아야 하는 거 아냐? 지금이라도 던질까?!
 
