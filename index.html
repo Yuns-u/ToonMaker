@@ -617,7 +617,7 @@ function parseSvgText(text){
   return {x,y,w,h, inner: svg.innerHTML};
 }
 function slotFromFilename(name){
-  const base = name.replace(/\.svg$/i,'').toLowerCase();
+  const base = name.normalize('NFC').replace(/\.svg$/i,'').toLowerCase();
   const parts = base.split(/[_\-\s]+/);
   let kind=null, expr=null;
   parts.forEach(p=>{
