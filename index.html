@@ -200,10 +200,10 @@ const CHAR = {
   semo:  {name:'세모',   color:'#FF7A5C', dark:'#E05A3C'},
   dongle:{name:'동글이', color:'#7FA8F7', dark:'#4E7ED9'},
   nemo:  {name:'네모',   color:'#5FBF8F', dark:'#3E9A6E'},
-  rocket:{name:'마름모', color:'#FFC85C', dark:'#DFA22F'},
+  rocket:{name:'속보', color:'#FFC85C', dark:'#DFA22F'},
 };
 const EXPRS = {basic:'기본', joy:'기쁨', panic:'당황', angry:'화남', explain:'설명', sad:'슬픔'};
-const NAME2KEY = {'세모':'semo','동글이':'dongle','동그라미':'dongle','네모':'nemo','마름모':'rocket','로켓':'rocket',
+const NAME2KEY = {'세모':'semo','동글이':'dongle','동그라미':'dongle','네모':'nemo','마름모':'rocket','로켓':'rocket','속보':'rocket',
                   'semo':'semo','dongle':'dongle','nemo':'nemo','rocket':'rocket'};
 const EXPR2KEY = {'기본':'basic','기쁨':'joy','당황':'panic','화남':'angry','설명':'explain','슬픔':'sad',
                   'basic':'basic','joy':'joy','panic':'panic','angry':'angry','explain':'explain','sad':'sad'};
@@ -287,7 +287,7 @@ function parseContentBlock(block){
     const t=line.trim(); if(!t) return;
     if(t.startsWith('#')){ s.heading=t.replace(/^#+\s*/,''); return; }
     if(t.startsWith('>')){ s.note=t.replace(/^>\s*/,''); return; }
-    const m = t.match(/^(세모|동글이|동그라미|네모|마름모|로켓)\s*(?:\(([^)]+)\))?\s*[:：]\s*(.*)$/);
+    const m = t.match(/^(세모|동글이|동그라미|네모|마름모|로켓|속보)\s*(?:\(([^)]+)\))?\s*[:：]\s*(.*)$/);
     if(m){
       if(spk==='none'){ spk=NAME2KEY[m[1]]; expr=EXPR2KEY[m[2]]||'basic'; }
       body.push(m[3]);
@@ -1293,7 +1293,7 @@ const SAMPLE = `금리가 오르면 왜 내 주식은 떨어질까?
 세모도 이해하는 금리의 코너
 
 # 뉴스 속보
-마름모: 속보! 기준금리 0.5%p 인상! 자산 시장 출렁!
+속보: 속보! 기준금리 0.5%p 인상! 자산 시장 출렁!
 
 세모(당황): 뭐?! 내 주식이 파랗게 질렸어! 금리가 뭔데 내 계좌를 건드려?!
 
