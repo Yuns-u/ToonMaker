@@ -120,6 +120,11 @@
   .upload-row{display:flex; align-items:center; gap:8px; padding:6px 0; font-size:12.5px; border-bottom:1px solid var(--line);}
   .upload-row .st{margin-left:auto; font-weight:700;}
   .st.ok{color:var(--nemo);} .st.err{color:var(--semo);} .st.pending{color:var(--sub);}
+  /* 8단계 업로드 모드 탭 */
+  .mode-tabs{display:flex; gap:8px; margin-bottom:12px;}
+  .mode-tab{flex:1; padding:10px; border-radius:10px; border:2px solid var(--line); background:#fff;
+    font-weight:700; font-size:12.5px; cursor:pointer; color:var(--ink);}
+  .mode-tab.sel{border-color:var(--semo); background:#FFF3EF;}
   /* 캐릭터 배치 리스트 */
   .char-card{border:1px solid var(--line); border-radius:12px; padding:10px; margin-bottom:8px;}
   .char-card label.chk{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600;}
@@ -308,6 +313,7 @@ let state = {
   category:null, issue:null,
   source:'', script:'', caption:'',
   uploaded:false, uploadManifest:null,
+  uploadMode:'auto', manualFiles:[],
 };
 let selected = 0;
 let pack = {}; // {semo:{basic:{x,y,w,h,inner}, ...}, ...}
@@ -856,6 +862,41 @@ async function uploadToGithub(onProgress){
   if(allOk){ state.uploaded = true; state.uploadManifest = {files:results, uploadedAt:Date.now()}; }
   return {ok:allOk, results};
 }
+async function uploadToGithubManual(imageFiles, onProgress){
+  if(!state.issue) return {ok:false, message:'먼저 1단계에서 이슈를 선택해주세요.'};
+  if(!imageFiles.length) return {ok:false, message:'업로드할 이미지 파일을 먼저 선택해주세요.'};
+  const number = state.issue.number;
+  const {data:issueNow, error:issueErr} = await fetchIssue(number);
+  if(issueErr) return {ok:false, message: ghErrorMessage(issueErr)};
+  if(issueNow.state==='closed') return {ok:false, message:'선택한 이슈가 이미 닫혀 있어요. 1단계에서 다시 골라주세요.'};
+
+  const files = imageFiles.map(f=>({name:f.name, blob:f}));
+  files.push({name:'script.txt', text: buildMetaText()});
+
+  const results = [];
+  for(const f of files){
+    onProgress && onProgress(f.name, 'pending');
+    try{
+      let base64, message;
+      if(f.text!==undefined){
+        base64 = btoa(unescape(encodeURIComponent(f.text)));
+        message = `docs: ${state.episode} 원본 원고 업로드`;
+      } else {
+        base64 = await blobToBase64(f.blob);
+        message = `content: ${state.episode} ${f.name} 업로드 (직접 업로드)`;
+      }
+      const {error} = await putFile(`inbox/${number}/${f.name}`, base64, message);
+      if(error){ results.push({name:f.name, ok:false, message:ghErrorMessage(error)}); onProgress && onProgress(f.name,'err', ghErrorMessage(error)); }
+      else { results.push({name:f.name, ok:true}); onProgress && onProgress(f.name,'ok'); }
+    } catch(e){
+      results.push({name:f.name, ok:false, message:e.message});
+      onProgress && onProgress(f.name,'err', e.message);
+    }
+  }
+  const allOk = results.every(r=>r.ok);
+  if(allOk){ state.uploaded = true; state.uploadManifest = {files:results, uploadedAt:Date.now()}; }
+  return {ok:allOk, results};
+}
 
 /* ============ 설정 모달 ============ */
 function openSettings(){ document.getElementById('settingsOverlay').hidden=false; }
@@ -1140,22 +1181,68 @@ function renderStep7(){
 
 /* ============ 8단계: 저장하기 (GitHub 업로드) ============ */
 function renderStep8(){
+  const mode = state.uploadMode||'auto';
+  const issueHint = state.issue ? `대상 이슈: <b>#${state.issue.number} ${esc(state.issue.title)}</b>` : '이슈가 선택되지 않았어요. 1단계로 가주세요.';
   document.getElementById('stepPanel').innerHTML = `
     <h2>8. 저장하기</h2>
-    <div class="hint">
-      ${state.issue ? `대상 이슈: <b>#${state.issue.number} ${esc(state.issue.title)}</b>` : '이슈가 선택되지 않았어요. 1단계로 가주세요.'}<br>
-      PNG 10장 + 원본 원고(script.txt)가 <code>inbox/${state.issue?state.issue.number:'?'}/</code> 에 올라갑니다.
+    <div class="mode-tabs">
+      <button class="mode-tab ${mode==='auto'?'sel':''}" data-mode="auto">자동 생성 (ToonMaker)</button>
+      <button class="mode-tab ${mode==='manual'?'sel':''}" data-mode="manual">직접 업로드 (Canva 등)</button>
     </div>
-    <div class="btnrow">
-      <button id="btnUpload" ${state.issue?'':'disabled'}>GitHub에 업로드</button>
-      <button class="ghost" id="btnZipBackup">ZIP으로 백업 다운로드</button>
-    </div>
+    ${mode==='auto' ? `
+      <div class="hint">
+        ${issueHint}<br>
+        PNG 10장 + 원본 원고(script.txt)가 <code>inbox/${state.issue?state.issue.number:'?'}/</code> 에 올라갑니다.
+      </div>
+      <div class="btnrow">
+        <button id="btnUpload" ${state.issue?'':'disabled'}>GitHub에 업로드</button>
+        <button class="ghost" id="btnZipBackup">ZIP으로 백업 다운로드</button>
+      </div>
+    ` : `
+      <div class="hint">
+        ${issueHint}<br>
+        Canva 등에서 내보낸 이미지 파일을 골라주세요. 원본 원고(script.txt)와 함께 <code>inbox/${state.issue?state.issue.number:'?'}/</code> 에 그대로 올라갑니다.
+      </div>
+      <div class="btnrow">
+        <label class="mini ghost" style="cursor:pointer;">이미지 파일 선택<input type="file" id="manualFileInput" accept="image/*" multiple style="display:none;"></label>
+      </div>
+      <div id="manualFileList"></div>
+      <div class="btnrow">
+        <button id="btnUpload" ${state.issue && state.manualFiles.length?'':'disabled'}>GitHub에 업로드</button>
+      </div>
+    `}
     <div id="uploadProgress"></div>
     <div id="uploadMsg" class="msg"></div>`;
   renderAll();
 
-  document.getElementById('btnZipBackup').onclick = async()=>{
-    const btn=document.getElementById('btnZipBackup'); btn.textContent='만드는 중…'; btn.disabled=true;
+  document.querySelectorAll('.mode-tab').forEach(b=>{
+    b.onclick=()=>{ state.uploadMode=b.dataset.mode; renderStep8(); };
+  });
+
+  if(mode==='manual'){
+    const renderFileList=()=>{
+      const wrap = document.getElementById('manualFileList');
+      wrap.innerHTML = state.manualFiles.length ? state.manualFiles.map((f,i)=>
+        `<div class="upload-row"><span>${esc(f.name)}</span><button class="mini ghost" data-rm="${i}">삭제</button></div>`
+      ).join('') : `<div class="hint">아직 선택된 파일이 없어요.</div>`;
+      wrap.querySelectorAll('[data-rm]').forEach(btn=>{
+        btn.onclick=()=>{ state.manualFiles.splice(Number(btn.dataset.rm),1); renderStep8(); };
+      });
+    };
+    renderFileList();
+    document.getElementById('manualFileInput').onchange=(e)=>{
+      const picked = Array.from(e.target.files||[]);
+      picked.forEach(nf=>{
+        const dup = state.manualFiles.findIndex(f=>f.name===nf.name);
+        if(dup>=0) state.manualFiles[dup]=nf; else state.manualFiles.push(nf);
+      });
+      renderStep8();
+    };
+  }
+
+  const btnZip = document.getElementById('btnZipBackup');
+  if(btnZip) btnZip.onclick = async()=>{
+    btnZip.textContent='만드는 중…'; btnZip.disabled=true;
     try{
       if(window.JSZip){
         const zip=new JSZip();
@@ -1165,7 +1252,7 @@ function renderStep8(){
       } else {
         for(let i=0;i<10;i++) download(await svgToPngBlob(slideSVG(state.slides[i],i)), slideName(i));
       }
-    } finally { btn.textContent='ZIP으로 백업 다운로드'; btn.disabled=false; }
+    } finally { btnZip.textContent='ZIP으로 백업 다운로드'; btnZip.disabled=false; }
   };
 
   const btnUpload = document.getElementById('btnUpload');
@@ -1186,14 +1273,22 @@ function renderStep8(){
       }
       return rows[name];
     };
-    for(let i=0;i<10;i++) ensureRow(slideName(i));
-    ensureRow('script.txt');
-    const result = await uploadToGithub((name, status, msg)=>{
+    const onProgress = (name, status, msg)=>{
       const el = ensureRow(name);
       el.className = 'st '+status;
       el.textContent = status==='ok'?'완료':status==='err'?'실패':'진행중';
       if(msg) el.title = msg;
-    });
+    };
+    let result;
+    if(mode==='auto'){
+      for(let i=0;i<10;i++) ensureRow(slideName(i));
+      ensureRow('script.txt');
+      result = await uploadToGithub(onProgress);
+    } else {
+      state.manualFiles.forEach(f=>ensureRow(f.name));
+      ensureRow('script.txt');
+      result = await uploadToGithubManual(state.manualFiles, onProgress);
+    }
     btnUpload.disabled=false; btnUpload.textContent='GitHub에 업로드';
     document.getElementById('uploadMsg').innerHTML = result.ok
       ? `<span style="color:var(--nemo);font-weight:700;">업로드 완료! 9단계에서 최종 확인 후 완료를 눌러주세요.</span>`
